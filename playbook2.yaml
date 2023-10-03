@@ -1,0 +1,32 @@
+---
+- name: configure the httpd an other services to dev_servers
+  hosts: dev_servers
+  gather_facts: true
+  tasks: 
+    - name: configure httpd and vstpd
+      ansible.builtin.package:
+        name: 
+          - httpd
+          - vsftpd
+        state: present
+
+    - name: configure nginx and haproxy server
+      ansible.builtin.yum:
+        name:
+          - nginx
+          - haproxy
+        state: latest
+        
+    - name : start the services
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: yes
+    - name: start other service
+      ansible.builtin.service:
+        name: vsftpd
+        state: started
+        enabled: yes
+
+
+
