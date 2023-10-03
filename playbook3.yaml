@@ -1,0 +1,61 @@
+---
+- name: host multiple web pages installing in dev_servers 
+  hosts: dev_servers
+  gather_facts: true
+  tasks: 
+    - name: install httpd apache web_server
+      ansible.builtin.yum:
+        name: httpd
+        state: present
+    - name: start and enable httpd
+      ansible.builtin.service:
+        name: httpd
+        state: started
+        enabled: yes
+    - name: enable firewall fot httpd service
+      ansible.posix.firewalld:
+        service: http
+        state: enabled
+        permanent: true
+        immediate: yes
+    - name: create a directory web_content and web_host
+      ansible.builtin.file:
+        path: "{{item}}"
+        state: directory
+        setype: httpd_sys_content_t
+      loop:
+        - /web_content
+        - /web_host
+    - name: create a index.html in file web_content
+      ansible.builtin.file:
+        path: /web_content/index.html
+        state: touch
+        setype: httpd_sys_content_t
+    - name: create a index.html in file web_host
+      ansible.builtin.file:
+        path: /web_host/index.html
+        state: touch
+        setype: httpd_sys_content_t
+    - name: copy the jinja2 templete in index.html file
+      ansible.builtin.template:
+        src: templete/web_content.j2
+        dest : /web_content/index.html
+    - name: copy template in index.html web_host
+      ansible.builtin.template:
+        src: templete/web_host.j2
+        dest: /web_host/index.html
+    - name: crate a symbolic link
+      ansible.builtin.file:
+        src: /web_content
+        dest: /var/www/html/web_content
+        state: link
+    - name: create other link
+      ansible.builtin.file:
+        src: /web_host
+        dest: /var/www/html/web_host
+        state: link
+      notify:
+  handlers:
+    - name: restart httpd
+      ansible.builtin.service:
+        name: httpd
