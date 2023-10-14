@@ -1,0 +1,26 @@
+---
+- name: creating multiple users in multiple projects
+  hosts: all
+  vars_files:
+    - users.yaml
+    - password.yaml
+
+  tasks:
+    - name: creating a developer in db_server
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        comment: "developer"
+        shell: /bin/bash
+        password: "{{ dev_pass | password_hash('sha512') }}"
+      loop: "{{ users }}"
+      when: inventory_hostname in groups['db_servers'] and item.job == "developer"
+
+    - name: creating devops user
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        state: present
+        comment: "devops engineer"
+        password: "{{ devops_pass | password_hash('sha512') }}"
+      loop: "{{ users }}"
+      when: inventory_hostname in groups['dev_servers'] and item.job == "devops"
+

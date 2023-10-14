@@ -1,0 +1,6 @@
+---
+users:
+  - name : kunal
+    job : Devops
+  - name : Vishal
+    job:  Developer    
