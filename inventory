@@ -1,0 +1,10 @@
+[dev_servers]
+clientnode1
+[db_servers]
+clientnode2
+clientnode3
+[all_servers:children]
+dev_servers
+db_servers
+
+

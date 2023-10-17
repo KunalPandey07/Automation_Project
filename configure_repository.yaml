@@ -1,0 +1,38 @@
+---
+- name: configure repository
+  hosts: dev_servers
+  tasks:
+    - name: configure baseos in clientnode1
+      ansible.builtin.yum_repository:
+        name: Baseos
+        file: rh124
+        description: 'basic application'
+        baseurl: http://172.20.10.14/Redhat-Repositories/BaseOS/
+        gpgcheck: yes
+        gpgkey: http://172.20.10.14/Redhat-Repositories/RPM-GPG-KEY-redhat-release
+        enabled: yes
+
+    - name: configure appstream in clientnode1
+      ansible.builtin.yum_repository:
+        name: appstream
+        file: rh200
+        description: appstream-repo
+        baseurl: http://172.20.10.14/Redhat-Repositories/AppStream/
+        gpgcheck: yes
+        gpgkey: http://172.20.10.14/Redhat-Repositories/RPM-GPG-KEY-redhat-release
+        enabled: yes
+
+#creating empty file in managed node
+#- name: create empty file in managed node
+# hosts: localghost
+# tasks:
+#   - name: create empty file
+#     ansible.builtin.touch:
+#       path: /tmp/file.txt
+#       mode: u+wrx,g+r,o+r
+#       owner: ansadmin
+#
+#   - name: add a content to file
+#     ansible.builtin.copy:
+#       content: 'content of the file'
+#       path: /tmp/file.txt
