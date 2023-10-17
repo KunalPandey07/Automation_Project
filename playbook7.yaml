@@ -1,0 +1,32 @@
+---
+- name: Configure new port for ssh
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Change port in the configuration file
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^Port\s+'
+        line: 'Port 222'
+      notify: restart sshd
+
+    - name: Add port in SELinux DB
+      community.general.seport:
+        ports: 222
+        proto: tcp
+        setype: ssh_port_t
+        state: present
+
+    - name: Open the port in the firewall
+      ansible.posix.firewalld:
+        port: 222/tcp
+        permanent: yes
+        immediate: yes
+        state: enabled
+
+  handlers:
+    - name: Restart sshd service
+      ansible.builtin.service:
+        name: sshd
+        state: restarted
+
